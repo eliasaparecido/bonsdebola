@@ -86,36 +86,57 @@ class JogadoresController extends Controller
         $times = [];
         $qtdetimes = ($qtdejogadores / $qtde);
         $CountTime = 0;
-        $goleiro = false;
-        shuffle($jogadores);
 
-        while ($CountTime < $qtdetimes) {
+        shuffle( $jogadores );//misturo jogares
+
+        //separo os goleiros dos jogadores
+        $filterGoleiros = 1; 
+
+        $goleiros = array_filter($jogadores, function ($var) use ($filterGoleiros) {
+            return ($var['goleiro'] == $filterGoleiros);
+        });
+
+        $filterJogadores= 0; 
+
+        $jogadoreslinha = array_filter($jogadores, function ($var) use ($filterJogadores) {
+            return ($var['goleiro'] == $filterJogadores);
+        });
+       
+
+        while($CountTime < $qtdetimes)
+        {
+            $booleangoleiro = false;
             $times[$CountTime] = [];
-            $qtdejogadoresadd = 0;
-            $goleiro = false;
-
-            foreach($jogadores as $key => $jogador)
+            $nrjogadores = 0;
+            
+            foreach($goleiros as $key => $goleiro)
             {
-                if($qtdejogadoresadd <  $qtde) {
-
-                    if($goleiro == false and  $jogador['goleiro'] == 1){
-                        $goleiro = true;
-                        array_push( $times[$CountTime], $jogador);
-                        unset($jogadores[$key]);
-                        $qtdejogadoresadd++;
-                    } else {
-                        if($jogador['goleiro'] == 0){
-                            array_push( $times[$CountTime], $jogador);
-                            unset($jogadores[$key]);
-                            $qtdejogadoresadd++;
-                        }  
-                    }
+                if($nrjogadores < $qtde)
+                {
+                    if($booleangoleiro == false)
+                    {
+                        array_push( $times[$CountTime],  $goleiro);
+                        unset($goleiros[$key]);
+                        $booleangoleiro = true;
+                        $nrjogadores++;
+                    } 
                 }
             }
-           
+
+            foreach($jogadoreslinha as $key => $jogadorlinha)
+            {
+                if($nrjogadores < $qtde)
+                {
+                    array_push( $times[$CountTime],  $jogadorlinha);
+                    unset($jogadoreslinha[$key]);
+                    $nrjogadores++;
+                }
+            }
+
+
             $CountTime++;
         }
 
-        return response()->json($times, 200);
+        return response()->json( $times , 200);
     }
 }
